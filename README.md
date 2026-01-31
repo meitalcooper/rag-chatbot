@@ -14,7 +14,7 @@ IT Support teams often handle a high volume of repetitive hardware issues.
 
 The diagram below illustrates how the chatbot processes an incoming hardware ticket and selects the appropriate troubleshooting path:
 
-![IT Support Resolution Flow](flow-diagram.png)
+![IT Support Resolution Flow](flow-diagram..jpg)
 
 ## 🛠️ Tech Stack
 
