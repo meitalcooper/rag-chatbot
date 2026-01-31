@@ -1,0 +1,8 @@
+{
+  "EMBED_API": "https://your-embed-api-endpoint.example.com",
+  "EMBED_MODEL": "ibm-granite/granite-embedding-125m-english",
+  "EMBED_KEY": "your-embed-api-key",
+  "CHAT_KEY": "your-chat-api-key",
+  "CHAT_API": "https://your-chat-api-endpoint.example.com",
+  "CHAT_MODEL": "ibm-granite/granite-3.3-8b-instruct"
+}
