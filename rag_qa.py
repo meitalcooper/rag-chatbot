@@ -87,8 +87,13 @@ def is_asking_for_error_message(response_text):
     
     return False
 
-def generate_answer(question, context, chat_api, chat_model, api_key):
+def generate_answer(question, context, chat_api, chat_model, api_key, history=None):
     """Generate answer using context"""
+    history = history or []
+    conversation = "\n".join(
+        f"{'User' if message['role'] == 'user' else 'Assistant'}: {message['content']}"
+        for message in history[-12:]
+    ) or "(No previous messages)"
     prompt = f"""You are a Level 1 IT Support Agent. Your role is to follow strict troubleshooting protocols and guide users through structured decision trees.
 
 CRITICAL INSTRUCTIONS:
@@ -106,6 +111,9 @@ CRITICAL INSTRUCTIONS:
 
 Context:
 {context}
+
+Previous Conversation:
+{conversation}
 
 User's Question/Issue: {question}
 
@@ -175,6 +183,7 @@ def main():
 
     # Conversation state tracking
     waiting_for_error = False
+    conversation_history = []
 
     # Interactive Q&A loop
     while True:
@@ -199,8 +208,13 @@ def main():
                 continue
 
         # Find relevant documents
+        previous_user_turns = [
+            message["content"] for message in conversation_history[-12:]
+            if message["role"] == "user"
+        ]
+        retrieval_question = " ".join(previous_user_turns[-3:] + [question])
         relevant_docs = find_relevant_docs(
-            question, documents, embed_api, embed_model, embed_key
+            retrieval_question, documents, embed_api, embed_model, embed_key
         )
 
         # Build context from relevant documents
@@ -212,9 +226,17 @@ def main():
         context = "\n\n".join(context_parts)
 
         # Generate answer
-        answer = generate_answer(question, context, chat_api, chat_model, chat_key)
+        answer = generate_answer(
+            question, context, chat_api, chat_model, chat_key,
+            history=conversation_history
+        )
 
         print(f"AI: {answer}\n")
+        conversation_history.extend([
+            {"role": "user", "content": question},
+            {"role": "assistant", "content": answer},
+        ])
+        conversation_history = conversation_history[-12:]
 
         # Check if the bot's response is asking for an error message
         if is_asking_for_error_message(answer):
